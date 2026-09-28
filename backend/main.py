@@ -5,7 +5,7 @@ Provides REST API for:
 - Patient management (CRUD)
 - People/known faces management (CRUD + photo/audio upload)
 - Interaction/visit logging and statistics
-- Face recognition (Phase 2)
+- Face recognition (DeepFace + ArcFace via REST and WebSocket)
 - Context-aware chatbot (Phase 3)
 """
 import os
@@ -15,7 +15,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from config import FRONTEND_URL, DATA_DIR, FACES_DIR, AUDIO_DIR
+from config import FRONTEND_URL, DATA_DIR, FACES_DIR, AUDIO_DIR, SNAPSHOTS_DIR
 from database import connect_to_mongo, close_mongo_connection
 
 
@@ -48,19 +48,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---- Static file serving for uploaded images and audio ----
+# ---- Static file serving for uploaded images, audio, and snapshots ----
 os.makedirs(FACES_DIR, exist_ok=True)
 os.makedirs(AUDIO_DIR, exist_ok=True)
+os.makedirs(SNAPSHOTS_DIR, exist_ok=True)
 
 app.mount("/static/faces", StaticFiles(directory=FACES_DIR), name="faces")
 app.mount("/static/audio", StaticFiles(directory=AUDIO_DIR), name="audio")
+app.mount("/static/snapshots", StaticFiles(directory=SNAPSHOTS_DIR), name="snapshots")
 
 # ---- Routers ----
-from routers import patients, people, interactions
+from routers import patients, people, interactions, recognition
 
 app.include_router(patients.router, prefix="/api/patients", tags=["Patients"])
 app.include_router(people.router, prefix="/api/patients", tags=["People"])
 app.include_router(interactions.router, prefix="/api/patients", tags=["Interactions"])
+app.include_router(recognition.router, prefix="/api/patients", tags=["Recognition"])
 
 
 # ---- Health Check ----

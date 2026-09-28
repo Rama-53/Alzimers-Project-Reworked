@@ -361,11 +361,11 @@ FastAPI auto-generates interactive docs at **`http://localhost:8000/docs`** (Swa
 | `POST` | `/api/patients/{id}/people/{pid}/photos` | Upload face photo(s) |
 | `POST` | `/api/patients/{id}/people/{pid}/audio` | Upload voice note |
 
-#### Face Recognition *(Phase 2)*
+#### Face Recognition ✅
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/patients/{id}/recognize` | Recognize face from image |
-| `WS` | `/ws/camera/{patient_id}` | Live camera stream recognition |
+| `POST` | `/api/patients/{id}/recognize` | Recognize faces in an uploaded image. Returns matches with full context. Auto-logs interaction. |
+| `WS` | `/ws/camera/{patient_id}` | Live WebSocket camera stream. Rate-limited (1 frame/2s). Smart interaction logging (5min debounce). |
 
 #### Chatbot *(Phase 3)*
 | Method | Endpoint | Description |
@@ -455,7 +455,7 @@ curl http://localhost:8000/api/patients/{patient_id}/interactions/stats
 | Phase | Description | Status |
 |---|---|---|
 | **Phase 1** | Docker + FastAPI backend + MongoDB CRUD | ✅ Complete |
-| **Phase 2** | Face recognition (DeepFace + WebSocket) | 🔲 Pending |
+| **Phase 2** | Face recognition (DeepFace + WebSocket) | ✅ Complete |
 | **Phase 3** | Chatbot (Ollama + context builder) | 🔲 Pending |
 | **Phase 4** | React frontend foundation + design system | 🔲 Pending |
 | **Phase 5** | Frontend pages (Home, Recognize, Chat, etc.) | 🔲 Pending |
@@ -471,12 +471,15 @@ curl http://localhost:8000/api/patients/{patient_id}/interactions/stats
 - Health check endpoints for MongoDB and Ollama connectivity
 - CORS configured for React frontend
 
-### Phase 2 — Face Recognition *(Next)*
-- DeepFace integration with ArcFace model for face recognition
-- `/recognize` POST endpoint for single image recognition
-- WebSocket `/ws/camera/{id}` for live camera stream processing
-- Automatic interaction logging on successful recognition
-- Face encoding cache management (`.pkl` file cleanup)
+### Phase 2 — Face Recognition ✅
+- **FaceService** singleton: lazy-loads DeepFace + ArcFace model, keeps it warm in GPU memory
+- `POST /api/patients/{id}/recognize`: upload an image → detect faces → match against known faces → return results with full context
+- `WS /ws/camera/{patient_id}`: WebSocket for live camera frames, rate-limited to 1 frame every 2 seconds
+- **Smart interaction logging**: auto-logs recognition events but debounces (5-minute cooldown per person to prevent spam)
+- **ContextService**: pulls person profiles + interaction history from MongoDB, formats for display and chatbot
+- Snapshot saving: every recognition saves a JPEG snapshot for the gallery timeline
+- DeepFace `.pkl` cache cleanup on new photo uploads for accurate re-indexing
+- Base64 and file upload image decoding with error handling
 
 ### Phase 3 — Chatbot Integration
 - Ollama REST API integration for Llama 3.1 chat
