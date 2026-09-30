@@ -58,12 +58,13 @@ app.mount("/static/audio", StaticFiles(directory=AUDIO_DIR), name="audio")
 app.mount("/static/snapshots", StaticFiles(directory=SNAPSHOTS_DIR), name="snapshots")
 
 # ---- Routers ----
-from routers import patients, people, interactions, recognition
+from routers import patients, people, interactions, recognition, chatbot
 
 app.include_router(patients.router, prefix="/api/patients", tags=["Patients"])
 app.include_router(people.router, prefix="/api/patients", tags=["People"])
 app.include_router(interactions.router, prefix="/api/patients", tags=["Interactions"])
 app.include_router(recognition.router, prefix="/api/patients", tags=["Recognition"])
+app.include_router(chatbot.router, prefix="/api/patients", tags=["Chatbot"])
 
 
 # ---- Health Check ----

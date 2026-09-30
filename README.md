@@ -367,11 +367,12 @@ FastAPI auto-generates interactive docs at **`http://localhost:8000/docs`** (Swa
 | `POST` | `/api/patients/{id}/recognize` | Recognize faces in an uploaded image. Returns matches with full context. Auto-logs interaction. |
 | `WS` | `/ws/camera/{patient_id}` | Live WebSocket camera stream. Rate-limited (1 frame/2s). Smart interaction logging (5min debounce). |
 
-#### Chatbot *(Phase 3)*
+#### Chatbot ✅
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/patients/{id}/chat` | Send message to chatbot |
-| `GET` | `/api/patients/{id}/chat/status` | Check Ollama status |
+| `POST` | `/api/patients/{id}/chat` | Send message with session context. Returns AI response with memory-aiding context. |
+| `GET` | `/api/patients/{id}/chat/status` | Check Ollama connectivity and model availability. |
+| `POST` | `/api/patients/{id}/chat/auto-greet` | Trigger auto-greet for a recognized person (when enabled). |
 
 #### Interactions
 | Method | Endpoint | Description |
@@ -456,7 +457,7 @@ curl http://localhost:8000/api/patients/{patient_id}/interactions/stats
 |---|---|---|
 | **Phase 1** | Docker + FastAPI backend + MongoDB CRUD | ✅ Complete |
 | **Phase 2** | Face recognition (DeepFace + WebSocket) | ✅ Complete |
-| **Phase 3** | Chatbot (Ollama + context builder) | 🔲 Pending |
+| **Phase 3** | Chatbot (Ollama + context builder) | ✅ Complete |
 | **Phase 4** | React frontend foundation + design system | 🔲 Pending |
 | **Phase 5** | Frontend pages (Home, Recognize, Chat, etc.) | 🔲 Pending |
 | **Phase 6** | Polish, animations, error handling, testing | 🔲 Pending |
@@ -481,12 +482,15 @@ curl http://localhost:8000/api/patients/{patient_id}/interactions/stats
 - DeepFace `.pkl` cache cleanup on new photo uploads for accurate re-indexing
 - Base64 and file upload image decoding with error handling
 
-### Phase 3 — Chatbot Integration
-- Ollama REST API integration for Llama 3.1 chat
-- Context builder that pulls people + interactions from MongoDB
-- Session memory (tracks all faces recognized in current session)
-- Auto-greet toggle (per-patient setting)
-- Streaming responses via WebSocket
+### Phase 3 — Chatbot Integration ✅
+- **ChatService** singleton: connects to Ollama REST API (`/api/chat` endpoint)
+- Compassionate system prompt engineering: warm, patient tone with strict rules against hallucination
+- **3-layer context injection**: historical (MongoDB) + session (camera-recognized people) + conversation history
+- `POST /api/patients/{id}/chat`: main chat endpoint accepting message + session_person_ids + conversation_history
+- `GET /api/patients/{id}/chat/status`: Ollama health check with model availability
+- `POST /api/patients/{id}/chat/auto-greet`: triggers auto-greet when a face is recognized (toggleable per patient)
+- Conversation history capped at last 20 messages to manage LLM context window
+- Graceful error handling: connection errors, timeouts, and model unavailability
 
 ### Phase 4 — React Frontend Foundation
 - Vite + React project setup with routing
