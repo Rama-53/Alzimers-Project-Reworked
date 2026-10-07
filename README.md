@@ -459,7 +459,7 @@ curl http://localhost:8000/api/patients/{patient_id}/interactions/stats
 | **Phase 2** | Face recognition (DeepFace + WebSocket) | ✅ Complete |
 | **Phase 3** | Chatbot (Ollama + context builder) | ✅ Complete |
 | **Phase 4** | React frontend foundation + design system | ✅ Complete |
-| **Phase 5** | Frontend pages (Home, Recognize, Chat, etc.) | 🔲 Pending |
+| **Phase 5** | Frontend pages (Home, Recognize, Chat, etc.) | ✅ Complete |
 | **Phase 6** | Polish, animations, error handling, testing | 🔲 Pending |
 
 ### Phase 1 — Docker + Backend Foundation ✅
@@ -500,13 +500,13 @@ curl http://localhost:8000/api/patients/{patient_id}/interactions/stats
 - Reusable UI components: `Navbar`, `Sidebar`, `Layout`, `ThemeToggle`, `PatientSelector`, `Modal`, `Badge`
 - Application pages scaffolded: Home, Recognize, Chatbot, Manage People, Gallery, and Analytics Dashboard
 
-### Phase 5 — Frontend Pages
-- **Home** — Patient selection, quick stats, navigation cards
-- **Recognize** — Live WebRTC camera + photo upload, result cards
-- **Chatbot** — Floating chat drawer with message bubbles
-- **Manage People** — Register/edit faces, upload photos, record audio
-- **Gallery** — Chronological interaction timeline with filters
-- **Dashboard** — Daily/weekly stats, visitor charts
+### Phase 5 — Frontend Pages & Interactivity ✅
+- **Home**: Welcome dashboard banner with active patient status card and interactive quick action navigation cards
+- **Recognize**: Live WebRTC camera stream with frame capture canvas, photo upload mode, tolerance slider control, ArcFace result cards, and session context injection
+- **Chatbot**: Real-time AI companion chat interface with Ollama status checker, session visitor pills, auto-greet triggers, context badges, and quick suggestion prompts
+- **Manage People**: Comprehensive CRUD management for known individuals with relationships, key memories, conversation hints, and face photo upload modals
+- **Gallery**: Photo memory gallery organized by person with high-resolution image preview modal and filter controls
+- **Dashboard**: Caregiver analytics dashboard with key metric widgets, live recognition log timeline, and search/filter tools
 
 ### Phase 6 — Polish & Testing
 - Loading states, error boundaries, toast notifications
